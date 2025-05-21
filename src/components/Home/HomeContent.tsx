@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from "react"
@@ -247,13 +248,15 @@ function getGradientForCard(cardId: number, active: boolean) {
   }
 }
 
+// Update the AnimatedCard component type definition
 const AnimatedCard: React.FC<{
   card: Card
   isExpanded: boolean
   onToggle: () => void
   index: number
-  onApplyScenario?: (income: number, deductions: number) => void
+  onApplyScenario?: (scenario: TaxScenario) => void  // Changed from (income: number, deductions: number) => void
 }> = ({ card, isExpanded, onToggle, index, onApplyScenario }) => {
+
   const [ref, inView] = useInView({
     threshold: 0.2,
     triggerOnce: false
@@ -275,13 +278,13 @@ const AnimatedCard: React.FC<{
   }));
   
   const specificAnimation = useCardSpecificAnimation(card.id, inView);
-  
+
   const bind = useGesture({
     onHover: ({ hovering }) => 
       api.start({ scale: hovering ? 1.05 : 1, config: config.wobbly }),
-    onMove: ({ xy: [mx, my], currentTarget }) => {
+    onMove: ({ xy: [mx, my], event }) => { 
       if (!isExpanded) {
-        const rect = (currentTarget as HTMLElement).getBoundingClientRect();
+        const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         const rotateXVal = (my - centerY) / 25;
