@@ -1,5 +1,3 @@
-
-
 "use client"
 
 import React, { useState, useEffect } from "react"
@@ -61,18 +59,42 @@ const TAX_BRACKETS: TaxBracket[] = [
   { min: 578126, max: Infinity, rate: 0.37 }
 ]
 
-// Helper function for card-specific animations
+// Helper function for card-specific animations - FIXED to follow React Hook rules
 function useCardSpecificAnimation(cardId: number, inView: boolean) {
-
+  // All hooks are called unconditionally at the top level
+  const numberProps = useSpring({
+    from: { number: 0 },
+    to: { number: inView && cardId === 1 ? 100 : 0 },
+    config: { duration: 2000 },
+    loop: inView && cardId === 1,
+    delay: 1000
+  });
+  
+  const chartProps = useSpring({
+    from: { progress: 0 },
+    to: { progress: inView && cardId === 2 ? 100 : 0 },
+    config: { duration: 3000 },
+    loop: inView && cardId === 2,
+    delay: 1000
+  });
+  
+  const gearProps = useSpring({
+    from: { rotate: 0 },
+    to: { rotate: inView && cardId === 3 ? 360 : 0 },
+    config: { duration: 8000 },
+    loop: inView && cardId === 3
+  });
+  
+  const fileProps = useSpring({
+    from: { progress: 0 },
+    to: { progress: inView && cardId === 4 ? 100 : 0 },
+    config: { duration: 3000 },
+    loop: inView && cardId === 4,
+    delay: 1500
+  });
+  
+  // Return appropriate animations based on cardId
   if (cardId === 1) {
-    const numberProps = useSpring({
-      from: { number: 0 },
-      to: { number: inView ? 100 : 0 },
-      config: { duration: 2000 },
-      loop: inView,
-      delay: 1000
-    });
-    
     return {
       icon: (
         <animated.div className="relative flex items-center justify-center w-8 h-8">
@@ -105,14 +127,6 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
   }
   
   if (cardId === 2) {
-    const chartProps = useSpring({
-      from: { progress: 0 },
-      to: { progress: inView ? 100 : 0 },
-      config: { duration: 3000 },
-      loop: inView,
-      delay: 1000
-    });
-    
     return {
       icon: (
         <div className="relative">
@@ -146,13 +160,6 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
   }
   
   if (cardId === 3) {
-    const gearProps = useSpring({
-      from: { rotate: 0 },
-      to: { rotate: inView ? 360 : 0 },
-      config: { duration: 8000 },
-      loop: inView
-    });
-    
     return {
       icon: (
         <animated.div 
@@ -184,14 +191,6 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
   }
   
   if (cardId === 4) {
-    const fileProps = useSpring({
-      from: { progress: 0 },
-      to: { progress: inView ? 100 : 0 },
-      config: { duration: 3000 },
-      loop: inView,
-      delay: 1500
-    });
-    
     return {
       icon: (
         <div className="relative">
