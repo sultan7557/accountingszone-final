@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from "react"
@@ -29,7 +28,6 @@ interface TaxScenario {
   description: string
   income: number
   deductions: number
-  taxRate: number
 }
 
 interface TaxBracket {
@@ -49,7 +47,7 @@ const images = [
 
 const COLORS = ['#0088FE', '#FF8042']
 
-// Simplified 2025 U.S. tax brackets (for demo purposes)
+// Simplified 2025 U.S. tax brackets
 const TAX_BRACKETS: TaxBracket[] = [
   { min: 0, max: 11000, rate: 0.10 },
   { min: 11001, max: 44725, rate: 0.12 },
@@ -60,9 +58,8 @@ const TAX_BRACKETS: TaxBracket[] = [
   { min: 578126, max: Infinity, rate: 0.37 }
 ]
 
-// Helper function for card-specific animations - FIXED to follow React Hook rules
+// Helper function for card-specific animations
 function useCardSpecificAnimation(cardId: number, inView: boolean) {
-  // All hooks are called unconditionally at the top level
   const numberProps = useSpring({
     from: { number: 0 },
     to: { number: inView && cardId === 1 ? 100 : 0 },
@@ -94,7 +91,6 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
     delay: 1500
   });
   
-  // Return appropriate animations based on cardId
   if (cardId === 1) {
     return {
       icon: (
@@ -229,7 +225,6 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
   };
 }
 
-// Helper to generate dynamic gradients
 function getGradientForCard(cardId: number, active: boolean) {
   const intensity = active ? '600' : '500';
   const secondary = active ? '700' : '600';
@@ -248,15 +243,13 @@ function getGradientForCard(cardId: number, active: boolean) {
   }
 }
 
-// Update the AnimatedCard component type definition
 const AnimatedCard: React.FC<{
   card: Card
   isExpanded: boolean
   onToggle: () => void
   index: number
-  onApplyScenario?: (scenario: TaxScenario) => void  // Changed from (income: number, deductions: number) => void
+  onApplyScenario?: (scenario: TaxScenario) => void
 }> = ({ card, isExpanded, onToggle, index, onApplyScenario }) => {
-
   const [ref, inView] = useInView({
     threshold: 0.2,
     triggerOnce: false
@@ -363,52 +356,98 @@ export default function HomeContent() {
   const [scenarios, setScenarios] = useState<TaxScenario[]>([])
   const [income, setIncome] = useState<number>(50000)
   const [deductions, setDeductions] = useState<number>(10000)
-  const [taxPlan, setTaxPlan] = useState<{ income: number; deductions: number; estimatedTax: number; createdAt: string } | null>(null)
+  const [taxPlan, setTaxPlan] = useState<{
+    income: number
+    deductions: number
+    estimatedTax: number
+    strategies: { retirement: boolean; charitable: boolean; credits: boolean }
+    createdAt: string
+  } | null>(null)
   const [selectedScenarios, setSelectedScenarios] = useState<number[]>([])
-  const [strategies, setStrategies] = useState<{ [key: string]: boolean }>({
+  const [strategies, setStrategies] = useState<{
+    retirement: boolean
+    charitable: boolean
+    credits: boolean
+  }>({
     retirement: false,
     charitable: false,
     credits: false
   })
   const [timelineMonth, setTimelineMonth] = useState<number>(0)
+  const [error, setError] = useState<string>("")
 
   useEffect(() => {
     async function fetchScenarios() {
       try {
         const data = await getTaxScenarios()
-        setScenarios(data)
+        // Validate scenarios
+        const validScenarios = data.filter(
+          (s: TaxScenario) =>
+            typeof s.id === 'number' &&
+            typeof s.description === 'string' &&
+            typeof s.income === 'number' && s.income >= 0 &&
+            typeof s.deductions === 'number' && s.deductions >= 0
+        )
+        setScenarios(validScenarios)
       } catch (error) {
         console.error("Error fetching scenarios:", error)
+        setError("Failed to load tax scenarios.")
       }
     }
     fetchScenarios()
   }, [])
 
-  const calculateTax = (inc: number = income, ded: number = deductions, strats: typeof strategies = strategies) => {
+  const calculateTax = (
+    inc: number = income,
+    ded: number = deductions,
+    strats: typeof strategies = strategies
+  ) => {
+    // Validate inputs
+    if (inc < 0 || ded < 0 || ded > inc) {
+      return 0
+    }
+
     let taxableIncome = inc - ded
-    if (strats.retirement) taxableIncome -= Math.min(inc * 0.1, 23000) // Simplified 401(k) contribution
-    if (strats.charitable) taxableIncome -= Math.min(inc * 0.05, 10000) // Simplified charitable deduction
-    if (strats.credits) taxableIncome -= 2000 // Simplified tax credit
+    // Apply strategies with realistic caps
+    if (strats.retirement) {
+      taxableIncome -= Math.min(inc * 0.1, 23000) // Max 401(k) contribution
+    }
+    if (strats.charitable) {
+      taxableIncome -= Math.min(inc * 0.05, 10000) // Max charitable deduction
+    }
+    if (strats.credits) {
+      taxableIncome -= 2000 // Simplified tax credit
+    }
+
+    // Ensure taxable income is not negative
+    taxableIncome = Math.max(0, taxableIncome)
+
     let tax = 0
     let remainingIncome = taxableIncome
     for (const bracket of TAX_BRACKETS) {
       if (remainingIncome <= 0) break
-      const taxableInBracket = Math.min(remainingIncome, bracket.max - bracket.min)
+      const taxableInBracket = Math.min(
+        remainingIncome,
+        bracket.max - bracket.min
+      )
       tax += taxableInBracket * bracket.rate
       remainingIncome -= taxableInBracket
     }
-    return tax > 0 ? tax : 0
+    return tax
   }
 
-  const getTaxBracketData = () => {
-    const taxableIncome = income - deductions
+  const getTaxBracketData = (inc: number = income, ded: number = deductions) => {
+    if (inc < 0 || ded < 0 || ded > inc) {
+      return []
+    }
+    const taxableIncome = Math.max(0, inc - ded)
     const data = TAX_BRACKETS.map((bracket, index) => {
       const taxableInBracket = Math.min(
         taxableIncome,
         bracket.max
       ) - (index > 0 ? TAX_BRACKETS[index - 1].max : 0)
       return {
-        name: `${bracket.rate * 100}%`,
+        name: `${(bracket.rate * 100).toFixed(0)}%`,
         value: taxableInBracket > 0 ? taxableInBracket : 0,
         rate: bracket.rate
       }
@@ -417,29 +456,60 @@ export default function HomeContent() {
   }
 
   const handleCreatePlan = () => {
+    if (income < 0 || deductions < 0 || deductions > income) {
+      setError("Invalid income or deductions.")
+      return
+    }
     const newPlan = {
       income,
       deductions,
       estimatedTax: calculateTax(),
+      strategies: { ...strategies },
       createdAt: new Date().toLocaleString(),
     }
     setTaxPlan(newPlan)
     setTimelineMonth(0)
+    setError("")
   }
 
   const resetPlan = () => {
     setTaxPlan(null)
     setTimelineMonth(0)
+    setStrategies({ retirement: false, charitable: false, credits: false })
+    setError("")
   }
 
   const handleApplyScenario = (scenario: TaxScenario) => {
+    if (scenario.income < 0 || scenario.deductions < 0 || scenario.deductions > scenario.income) {
+      setError("Invalid scenario data.")
+      return
+    }
     setIncome(scenario.income)
     setDeductions(scenario.deductions)
     setExpandedCard(1)
+    setError("")
   }
 
   const handleToggleStrategy = (strategy: string) => {
     setStrategies(prev => ({ ...prev, [strategy]: !prev[strategy] }))
+  }
+
+  const handleInputChange = (
+    setter: React.Dispatch<React.SetStateAction<number>>,
+    value: string
+  ) => {
+    // Sanitize input: remove non-numeric characters except decimal point
+    const cleanValue = value.replace(/[^0-9.]/g, '')
+    const numValue = parseFloat(cleanValue)
+    if (!isNaN(numValue) && numValue >= 0) {
+      setter(numValue)
+      setError("")
+    } else if (cleanValue === '') {
+      setter(0)
+      setError("")
+    } else {
+      setError("Please enter a valid non-negative number.")
+    }
   }
 
   const cards: Card[] = [
@@ -451,25 +521,26 @@ export default function HomeContent() {
       content: (
         <div>
           <h4 className="font-semibold">Tax Bracket Visualizer</h4>
+          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
           <div className="space-y-4 mt-2">
             <div>
               <label className="block text-sm">Income ($)</label>
               <input
-                type="number"
+                type="text"
                 value={income}
-                onChange={(e) => setIncome(Number(e.target.value))}
+                onChange={(e) => handleInputChange(setIncome, e.target.value)}
                 className="w-full p-2 border rounded"
-                placeholder="Enter income"
+                placeholder="Enter income (e.g., 50000)"
               />
             </div>
             <div>
               <label className="block text-sm">Deductions ($)</label>
               <input
-                type="number"
+                type="text"
                 value={deductions}
-                onChange={(e) => setDeductions(Number(e.target.value))}
+                onChange={(e) => handleInputChange(setDeductions, e.target.value)}
                 className="w-full p-2 border rounded"
-                placeholder="Enter deductions"
+                placeholder="Enter deductions (e.g., 10000)"
               />
             </div>
             <p className="text-lg font-bold">
@@ -513,6 +584,7 @@ export default function HomeContent() {
       content: (
         <div>
           <h4 className="font-semibold">Scenario Comparison</h4>
+          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
           {scenarios.length > 0 ? (
             <div className="space-y-2 mt-2">
               <p className="text-sm">Select scenarios to compare:</p>
@@ -562,7 +634,7 @@ export default function HomeContent() {
                     />
                     <Line
                       type="monotone"
-                      dataKey={(s: TaxScenario) => s.income * s.taxRate}
+                      dataKey={(s: TaxScenario) => calculateTax(s.income, s.deductions, { retirement: false, charitable: false, credits: false })}
                       name="Tax"
                       stroke="#F59E0B"
                       activeDot={{ r: 8 }}
@@ -583,7 +655,7 @@ export default function HomeContent() {
                     <div>
                       <p>{scenario.description}</p>
                       <p>Income: ${scenario.income.toFixed(2)}</p>
-                      <p>Tax: ${(scenario.income * scenario.taxRate).toFixed(2)}</p>
+                      <p>Tax: ${calculateTax(scenario.income, scenario.deductions, { retirement: false, charitable: false, credits: false }).toFixed(2)}</p>
                     </div>
                     <motion.button
                       className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -611,11 +683,12 @@ export default function HomeContent() {
       content: (
         <div>
           <h4 className="font-semibold">Strategy Impact Simulator</h4>
+          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
           <p className="text-sm mt-2">Toggle strategies to see tax savings:</p>
           <div className="space-y-2 mt-2">
             {[
-              { key: 'retirement', label: 'Maximize Retirement Contributions ($23,000)' },
-              { key: 'charitable', label: 'Leverage Charitable Deductions ($10,000)' },
+              { key: 'retirement', label: 'Maximize Retirement Contributions (up to $23,000)' },
+              { key: 'charitable', label: 'Leverage Charitable Deductions (up to $10,000)' },
               { key: 'credits', label: 'Apply Tax Credits ($2,000)' }
             ].map((strat) => (
               <motion.div
@@ -680,8 +753,9 @@ export default function HomeContent() {
       content: (
         <div>
           <h4 className="font-semibold">Tax Plan Creator</h4>
+          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
           <p className="mt-2">
-            Use the calculator above to set your income and deductions, then click Create Plan.
+            Use the calculator above to set your income, deductions, and strategies, then click Create Plan.
           </p>
           <motion.button
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -702,6 +776,12 @@ export default function HomeContent() {
               >
                 <h5 className="font-semibold mb-2">Your Tax Plan Summary</h5>
                 <p>Created: {taxPlan.createdAt}</p>
+                <p>Income: ${taxPlan.income.toFixed(2)}</p>
+                <p>Deductions: ${taxPlan.deductions.toFixed(2)}</p>
+                <p>Strategies Applied: {Object.entries(taxPlan.strategies)
+                  .filter(([_, value]) => value)
+                  .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1))
+                  .join(', ') || 'None'}</p>
                 <motion.div 
                   className="flex justify-center my-4 overflow-visible" 
                   style={{ height: 200 }}
@@ -727,8 +807,8 @@ export default function HomeContent() {
                       </defs>
                       <Pie
                         data={[
-                          { name: 'Tax', value: taxPlan.estimatedTax * (1 - timelineMonth / 12) },
-                          { name: 'Remaining', value: (taxPlan.income - taxPlan.estimatedTax) * (1 - timelineMonth / 12) }
+                          { name: 'Tax', value: calculateTax(taxPlan.income, taxPlan.deductions, taxPlan.strategies) },
+                          { name: 'Remaining', value: taxPlan.income - calculateTax(taxPlan.income, taxPlan.deductions, taxPlan.strategies) }
                         ]}
                         dataKey="value"
                         innerRadius={40}
@@ -750,7 +830,7 @@ export default function HomeContent() {
                   </ResponsiveContainer>
                 </motion.div>
                 <div className="mt-4">
-                  <label className="block text-sm">Plan Timeline (Months)</label>
+                  <label className="block text-sm">Tax Savings Progress (Months)</label>
                   <input
                     type="range"
                     min={0}
@@ -760,6 +840,12 @@ export default function HomeContent() {
                     className="w-full"
                   />
                   <p className="text-sm">Month: {timelineMonth}</p>
+                  <p className="text-sm">
+                    Cumulative Savings: ${(
+                      (calculateTax(taxPlan.income, taxPlan.deductions, { retirement: false, charitable: false, credits: false }) -
+                      calculateTax(taxPlan.income, taxPlan.deductions, taxPlan.strategies)) * (timelineMonth / 12)
+                    ).toFixed(2)}
+                  </p>
                 </div>
                 <motion.button
                   className="mt-2 px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700"
