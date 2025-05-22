@@ -36,6 +36,8 @@ interface TaxBracket {
   rate: number
 }
 
+type StrategyKey = 'retirement' | 'charitable' | 'credits'
+
 const Slider = dynamic(() => import("@/components/Slider"), { ssr: false })
 const images = [
   "/consultation/consultation1.jpg",
@@ -66,7 +68,7 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
     config: { duration: 2000 },
     loop: inView && cardId === 1,
     delay: 1000
-  });
+  })
   
   const chartProps = useSpring({
     from: { progress: 0 },
@@ -74,14 +76,14 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
     config: { duration: 3000 },
     loop: inView && cardId === 2,
     delay: 1000
-  });
+  })
   
   const gearProps = useSpring({
     from: { rotate: 0 },
     to: { rotate: inView && cardId === 3 ? 360 : 0 },
     config: { duration: 8000 },
     loop: inView && cardId === 3
-  });
+  })
   
   const fileProps = useSpring({
     from: { progress: 0 },
@@ -89,7 +91,7 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
     config: { duration: 3000 },
     loop: inView && cardId === 4,
     delay: 1500
-  });
+  })
   
   if (cardId === 1) {
     return {
@@ -120,7 +122,7 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
           ))}
         </div>
       )
-    };
+    }
   }
   
   if (cardId === 2) {
@@ -153,7 +155,7 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
           ))}
         </div>
       )
-    };
+    }
   }
   
   if (cardId === 3) {
@@ -184,7 +186,7 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
           ))}
         </div>
       )
-    };
+    }
   }
   
   if (cardId === 4) {
@@ -216,30 +218,30 @@ function useCardSpecificAnimation(cardId: number, inView: boolean) {
           />
         </div>
       )
-    };
+    }
   }
   
   return {
     icon: <></>,
     background: <></>
-  };
+  }
 }
 
 function getGradientForCard(cardId: number, active: boolean) {
-  const intensity = active ? '600' : '500';
-  const secondary = active ? '700' : '600';
+  const intensity = active ? '600' : '500'
+  const secondary = active ? '700' : '600'
   
   switch(cardId) {
     case 1: 
-      return `linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)`;
+      return `linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)`
     case 2:
-      return `linear-gradient(135deg, #10B981 0%, #065F46 100%)`;
+      return `linear-gradient(135deg, #10B981 0%, #065F46 100%)`
     case 3:
-      return `linear-gradient(135deg, #8B5CF6 0%, #5B21B6 100%)`;
+      return `linear-gradient(135deg, #8B5CF6 0%, #5B21B6 100%)`
     case 4:
-      return `linear-gradient(135deg, #F59E0B 0%, #B45309 100%)`;
+      return `linear-gradient(135deg, #F59E0B 0%, #B45309 100%)`
     default:
-      return `linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)`;
+      return `linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)`
   }
 }
 
@@ -253,7 +255,7 @@ const AnimatedCard: React.FC<{
   const [ref, inView] = useInView({
     threshold: 0.2,
     triggerOnce: false
-  });
+  })
   
   const [{ rotateX, rotateY, scale, y }, api] = useSpring(() => ({
     rotateX: 0,
@@ -261,39 +263,39 @@ const AnimatedCard: React.FC<{
     scale: 1,
     y: 0,
     config: { mass: 1, tension: 180, friction: 12 }
-  }));
+  }))
   
   const [{ background, boxShadow }] = useSpring(() => ({
     from: { background: getGradientForCard(card.id, false), boxShadow: '0 4px 15px rgba(0,0,0,0.1)' },
     to: { background: getGradientForCard(card.id, true), boxShadow: '0 10px 25px rgba(0,0,0,0.2)' },
     config: { duration: 3000 },
     loop: { reverse: true }
-  }));
+  }))
   
-  const specificAnimation = useCardSpecificAnimation(card.id, inView);
+  const specificAnimation = useCardSpecificAnimation(card.id, inView)
 
   const bind = useGesture({
     onHover: ({ hovering }) => 
       api.start({ scale: hovering ? 1.05 : 1, config: config.wobbly }),
     onMove: ({ xy: [mx, my], event }) => { 
       if (!isExpanded) {
-        const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const rotateXVal = (my - centerY) / 25;
-        const rotateYVal = (mx - centerX) / 25;
-        api.start({ rotateX: -rotateXVal, rotateY: rotateYVal });
+        const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+        const centerX = rect.left + rect.width / 2
+        const centerY = rect.top + rect.height / 2
+        const rotateXVal = (my - centerY) / 25
+        const rotateYVal = (mx - centerX) / 25
+        api.start({ rotateX: -rotateXVal, rotateY: rotateYVal })
       }
     },
     onMouseLeave: () => api.start({ rotateX: 0, rotateY: 0 })
-  });
+  })
 
   const entryAnimation = useSpring({
     from: { opacity: 0, y: 50 },
     to: { opacity: inView ? 1 : 0, y: inView ? 0 : 50 },
     delay: index * 200,
     config: { tension: 120, friction: 14 }
-  });
+  })
   
   return (
     <animated.div 
@@ -348,7 +350,7 @@ const AnimatedCard: React.FC<{
         </AnimatePresence>
       </animated.div>
     </animated.div>
-  );
+  )
 }
 
 export default function HomeContent() {
@@ -360,15 +362,11 @@ export default function HomeContent() {
     income: number
     deductions: number
     estimatedTax: number
-    strategies: { retirement: boolean; charitable: boolean; credits: boolean }
+    strategies: Record<StrategyKey, boolean>
     createdAt: string
   } | null>(null)
   const [selectedScenarios, setSelectedScenarios] = useState<number[]>([])
-  const [strategies, setStrategies] = useState<{
-    retirement: boolean
-    charitable: boolean
-    credits: boolean
-  }>({
+  const [strategies, setStrategies] = useState<Record<StrategyKey, boolean>>({
     retirement: false,
     charitable: false,
     credits: false
@@ -400,7 +398,7 @@ export default function HomeContent() {
   const calculateTax = (
     inc: number = income,
     ded: number = deductions,
-    strats: typeof strategies = strategies
+    strats: Record<StrategyKey, boolean> = strategies
   ) => {
     // Validate inputs
     if (inc < 0 || ded < 0 || ded > inc) {
@@ -490,7 +488,7 @@ export default function HomeContent() {
     setError("")
   }
 
-  const handleToggleStrategy = (strategy: string) => {
+  const handleToggleStrategy = (strategy: StrategyKey) => {
     setStrategies(prev => ({ ...prev, [strategy]: !prev[strategy] }))
   }
 
@@ -687,9 +685,9 @@ export default function HomeContent() {
           <p className="text-sm mt-2">Toggle strategies to see tax savings:</p>
           <div className="space-y-2 mt-2">
             {[
-              { key: 'retirement', label: 'Maximize Retirement Contributions (up to $23,000)' },
-              { key: 'charitable', label: 'Leverage Charitable Deductions (up to $10,000)' },
-              { key: 'credits', label: 'Apply Tax Credits ($2,000)' }
+              { key: 'retirement' as StrategyKey, label: 'Maximize Retirement Contributions (up to $23,000)' },
+              { key: 'charitable' as StrategyKey, label: 'Leverage Charitable Deductions (up to $10,000)' },
+              { key: 'credits' as StrategyKey, label: 'Apply Tax Credits ($2,000)' }
             ].map((strat) => (
               <motion.div
                 key={strat.key}
