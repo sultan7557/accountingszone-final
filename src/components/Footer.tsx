@@ -15,17 +15,14 @@ export default function Footer() {
       links: [
         { name: "About", href: "/about" },
         { name: "Contact", href: "/contact" },
-        { name: "Blog", href: "/blog" },
-        { name: "Careers", href: "/careers" },
       ],
     },
     {
       title: "Resources",
       links: [
         { name: "Support", href: "/contact/support" },
-        { name: "FAQs", href: "/faqs" },
+        { name: "FAQs", href: "/resources/support-and-community/faqs" },
         { name: "Our Location", href: "/contact" },
-        { name: "Site Map", href: "#" },
       ],
     },
     {
