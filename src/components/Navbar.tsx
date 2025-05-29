@@ -581,14 +581,13 @@ export default function Navbar() {
             onMouseEnter={() => setIndustriesDropdownOpen(true)}
             onMouseLeave={() => setIndustriesDropdownOpen(false)}
           >
-            <Link
-              href="/industries"
+            <div
               className={`text-xs hover:text-[#fbc710] transition-colors cursor-pointer uppercase ${
                 pathname.includes("industries") ? "text-[#fbc710]" : "text-black"
               }`}
             >
               INDUSTRIES
-            </Link>
+            </div>
             <div
               className={`absolute z-10 -left-[225px] top-full w-[1089px] py-12 bg-white shadow-lg duration-300 transition-opacity text-[13px] ${
                 industriesDropdownOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -827,14 +826,14 @@ export default function Navbar() {
             onMouseEnter={() => setFeaturesDropdownOpen(true)}
             onMouseLeave={() => setFeaturesDropdownOpen(false)}
           >
-            <Link
-              href="/features"
+            <div
               className={`text-xs hover:text-[#fbc710] transition-colors cursor-pointer uppercase ${
                 pathname.includes("features") ? "text-[#fbc710]" : "text-black"
               }`}
             >
               FEATURES
-            </Link>
+            </div>
+            
             <div
               className={`absolute z-10 text-[13px] -left-[290px] top-full w-[1089px] py-12 bg-white shadow-lg duration-300 transition-opacity ${
                 featuresDropdownOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -990,12 +989,13 @@ export default function Navbar() {
             onMouseLeave={() => setInsightsDropdownOpen(false)}
           >
             <div
-              className={`text-xs hover:text-[#fbc710] transition-colors uppercase ${
-                pathname.includes("/insights") ? "text-[#fbc710]" : "text-black"
+              className={`text-xs hover:text-[#fbc710] transition-colors cursor-pointer uppercase ${
+                pathname.includes("insights") ? "text-[#fbc710]" : "text-black"
               }`}
             >
               INSIGHTS
             </div>
+            
             <div
               className={`absolute z-10 text-[13px] -left-[345px] top-full w-[1089px] py-12 bg-white shadow-lg duration-300 transition-opacity ${
                 insightsDropdownOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
