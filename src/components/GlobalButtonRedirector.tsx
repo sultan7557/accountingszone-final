@@ -10,68 +10,98 @@ export default function GlobalButtonRedirector() {
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const button = target.closest('button');
+      const button = target.closest('button, a[href*="learn-more"], a[href*="learn more"]');
       
-      if (!button || button.closest('a[href]')) return;
+      if (!button) return;
       
-      const buttonText = button.textContent?.toLowerCase() || "";
+      // If it's a link with learn-more in the href, redirect
+      if (button instanceof HTMLAnchorElement && 
+          (button.href.includes('learn-more') || button.href.includes('learn more'))) {
+        e.preventDefault();
+        router.push("/contact/get-a-consultation");
+        return;
+      }
       
-      if (
-        buttonText.includes("get started") ||
-        buttonText.includes("schedule a demo") ||
-        buttonText.includes("request assessment") ||
-        buttonText.includes("book a consultation") ||
-        buttonText.includes("request a demo") ||
-        buttonText.includes("get a consultation") ||
-        buttonText.includes("request asset management consultation") ||
-        buttonText.includes("request audit readiness checklist") ||
-        buttonText.includes("request complimentary financial review") ||
-        buttonText.includes("get a free consultation")||
-        buttonText.includes("request complimentary assessment") ||
-        buttonText.includes("request risk assessment") ||
-        buttonText.includes("request inventory efficiency assessment") ||
-        buttonText.includes("request reporting demo") ||
-        buttonText.includes("request expense management assessment") ||
-        buttonText.includes("request documentation assessment") ||
-        buttonText.includes("request integration consultation") ||
-        buttonText.includes("request cleanup assessment") ||
-        buttonText.includes("learn more") ||
-        buttonText.includes("schedule a tax savings assessment") ||
-        buttonText.includes("schedule a demonstration") ||
-        buttonText.includes("schedule a dashboard demo") ||
-        buttonText.includes("connect with our specialists") ||
-        buttonText.includes("contact us today") ||
-        buttonText.includes("discover how we can help") ||
-        buttonText.includes("access knowledge base") ||
-        buttonText.includes("enroll now") ||
-        buttonText.includes("explore resources") ||
-        buttonText.includes("get a free quote") ||
-        buttonText.includes("get a free consultation") ||
-        buttonText.includes("get a free assessment") ||
-        buttonText.includes("get a free demo") ||
-        buttonText.includes("get a free trial") ||
-        buttonText.includes("explore automation tools") ||
-        buttonText.includes("schedule demo") ||
-        buttonText.includes("view deadlines") ||
-        buttonText.includes("set reminders") ||
-        buttonText.includes("view state deadlines") ||
-        buttonText.includes("view latest updates") ||
-        buttonText.includes("subscribe to alerts") ||
-        buttonText.includes("subscribe to updates") ||
-        buttonText.includes("explore knowledge base") ||
-        buttonText.includes("ask a question") ||
-        buttonText.includes("ask our experts") ||
-        buttonText.includes("learn about security") ||
-        buttonText.includes("security compliance") ||
-        buttonText.includes("view security details") ||
-        buttonText.includes("get support") ||
-        buttonText.includes("contact support") ||
-        buttonText.includes("connect with support")
+      // For buttons, check the text content
+      const buttonText = button.textContent?.trim().toLowerCase() || "";
+      
+      const redirectKeywords = [
+        "get started",
+        "schedule a demo",
+        "request assessment",
+        "book a consultation",
+        "request a demo",
+        "get a consultation",
+        "request asset management consultation",
+        "request audit readiness checklist",
+        "request complimentary financial review",
+        "get a free consultation",
+        "request complimentary assessment",
+        "request risk assessment",
+        "request inventory efficiency assessment",
+        "request reporting demo",
+        "request expense management assessment",
+        "request documentation assessment",
+        "request integration consultation",
+        "request cleanup assessment",
+        "learn more",
+        "learnmore",
+        "schedule a tax savings assessment",
+        "schedule a demonstration",
+        "schedule a dashboard demo",
+        "connect with our specialists",
+        "contact us today",
+        "discover how we can help",
+        "access knowledge base",
+        "enroll now",
+        "explore resources",
+        "get a free quote",
+        "get a free assessment",
+        "get a free demo",
+        "get a free trial",
+        "schedule demo",
+        "view deadlines",
+        "set reminders",
+        "view state deadlines",
+        "view latest updates",
+        "subscribe to alerts",
+        "subscribe to updates",
+        "ask a question",
+        "ask our experts",
+        "learn about security",
+        "security compliance",
+        "view security details",
+        "get support",
+        "contact support",
+        "connect with support", 
+        "get templates",
+        "get a free template",
+        "get a free assessment",
+        "explore automation tools",
+        "schedule demo",
+        "schedule a consultation",
+        "view federal deadlines",
+        "view integration guides",
+        "enable syncing now",
+        "create an account",
+        "share your feedback",
+        "register now",
+        "start learning",
+        "view case studies",
+        "download e-books",        
+        "access tutorials",
+        "start calculating",
+        "browse forms library",
+        "start filing now",
+        "access reports now",
         
 
 
 
-      ) {
+      ];
+
+      // Check if the button text contains any of the redirect keywords
+      if (redirectKeywords.some(keyword => buttonText.includes(keyword))) {
         e.preventDefault();
         router.push("/contact/get-a-consultation");
       }
