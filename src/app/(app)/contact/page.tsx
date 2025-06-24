@@ -175,7 +175,7 @@ export default function Contact() {
                 <div className="mt-1.5 text-black font-bold flex-shrink-0 sm:mb-0 mr-2">
                   Work Hours:
                 </div>
-                <div>Monday - Friday : 08h00 - 17h30</div>
+                <div>Monday - Friday : 08:00 - 17:00</div>
               </div>
             </div>
           </div>
