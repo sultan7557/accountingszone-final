@@ -86,7 +86,7 @@ export default function Contact() {
         </header>
         <div className="xl:my-[100px] relative max-w-[1830px] mx-auto px-[15px] 2xl:max-w-[calc(100vw-120px)]">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6303.983230561337!2d144.94987278893993!3d-37.813665379798834!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d4949e03ba7%3A0x3a4bed3cd2de0c6!2zMjY5IEtpbmcgU3QsIE1lbGJvdXJuZSBWSUMgMzAwMCwg0JDQstGB0YLRgNCw0LvQuNGP!5e0!3m2!1sru!2sru!4v1613041664241!5m2!1sru!2sru"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3317.073073420634!2d-117.6729646847922!3d35.62245678020609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c1b1e2e2e2e2e3%3A0x7e2e2e2e2e2e2e2e!2s124%20S%20Gemstone%20St%2C%20Ridgecrest%2C%20CA%2093555%2C%20USA!5e0!3m2!1sen!2sus!4v1718040000000!5m2!1sen!2sus"
             allowFullScreen
             aria-hidden="false"
             tabIndex={0}
@@ -175,7 +175,7 @@ export default function Contact() {
                 <div className="mt-1.5 text-black font-bold flex-shrink-0 sm:mb-0 mr-2">
                   Work Hours:
                 </div>
-                <div>Monday - Friday : 08h00 - 17h00</div>
+                <div>Monday - Friday : 08h00 - 17h30</div>
               </div>
             </div>
           </div>
