@@ -47,7 +47,7 @@ export default function EmploymentLaborLawCompliance() {
               </Button>
               <Button variant="outline" size="lg" className="border-[#FFB800] text-black hover:bg-[#FFB800]/10 gap-2">
                 <Phone className="h-4 w-4" />
-                Call (555) 123-4567
+                Call +1 (760) 686-0609
               </Button>
             </div>
           </div>
